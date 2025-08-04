@@ -20,7 +20,11 @@ test-masstree-prepare: test-masstree-warning
   if [[ ! -f {{MASSTREE_DATASET}} ]]; then
     echo -e "Downloading datasets from internet"
     echo -e "File size around 1.5G, it will take some time..."
-    read -p "Press enter to continue"
+    if [[ ! -f temp/.unattended ]]; then
+      read -p "Press enter to continue"
+    else
+      echo -e "unattended testing"
+    fi
     bash ./ae/masstree/download-workload.sh
     mv lognormal-190M.bin {{MASSTREE_DATASET}}
   fi

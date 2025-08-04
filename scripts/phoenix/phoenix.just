@@ -20,7 +20,11 @@ test-phoenix-prepare: test-phoenix-warning
   if [[ ! -f datasets/news.2024.en.shuffled.deduped ]]; then
     echo -e "Downloading datasets from internet"
     echo -e "File size around 2GiB, it will take some time..."
-    read -p "Press enter to continue"
+    if [[ ! -f temp/.unattended ]]; then
+      read -p "Press enter to continue"
+    else
+      echo -e "unattended testing"
+    fi
     wget https://data.statmt.org/news-crawl/en/news.2024.en.shuffled.deduped.gz \
       -O datasets/news.2024.en.shuffled.deduped.gz
     gzip -d datasets/news.2024.en.shuffled.deduped.gz

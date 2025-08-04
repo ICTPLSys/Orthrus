@@ -35,6 +35,7 @@ test-all: config build
   read -p "Press enter to continue"
 
   # Disable all warnings
+  touch temp/.unattended
   touch temp/.lsmtree-warning
   touch temp/.masstree-warning
   touch temp/.phoenix-warning
