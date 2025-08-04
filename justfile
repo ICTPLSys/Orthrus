@@ -4,10 +4,15 @@ common_flags_release := common_flags + " -DCMAKE_BUILD_TYPE=Release"
 
 CMAKE := "cmake"
 
-config:
+prepare:
+  git fetch --all
+  git pull
+  git submodule update --init
+
+config: prepare
   {{CMAKE}} -B build -S . {{common_flags_release}} -DENABLE_LSMTREE=ON
 
-config-debug:
+config-debug: prepare
   {{CMAKE}} -B build -S . {{common_flags_debug}} -DENABLE_LSMTREE=ON
 
 build:
@@ -19,7 +24,7 @@ import "scripts/masstree/masstree.just"
 import "scripts/lsmtree/lsmtree.just"
 
 
-test-all:
+test-all: config build
   #!/usr/bin/env bash
   set -e
   echo -e "======== Warning: Run All Tests ========"
