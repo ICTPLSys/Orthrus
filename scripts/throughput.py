@@ -109,7 +109,7 @@ def plot_fig(ax: plt.Axes, name, ylabel, with_legend, ylim=None, expo=None):
 plot_fig(axes[0, 0], "Memcached", "Throughput (Kops)", True, 500)
 plot_fig(axes[0, 1], "Phoenix", "Elapsed Time (s)", False, 50)
 plot_fig(axes[1, 0], "Masstree", "Throughput (Kops)", False, 700)
-plot_fig(axes[1, 1], "LSMTree", "Throughput (Kops)", False, 220)
+plot_fig(axes[1, 1], "LSMTree", "Throughput (Kops)", False, 400)
 
 leg = fig.legend(loc="lower center", bbox_to_anchor=(0.5, -0.08), ncol=4, fontsize=28)
 fig.subplots_adjust(top=0.9, bottom=0.05, left=0.1, right=0.95)
