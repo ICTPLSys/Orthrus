@@ -50,12 +50,19 @@ test-all: config build
 
 
 generate_all_results:
+  #!/usr/bin/env bash
   mkdir -p results/img
+
+  echo -e "\n\033[31m* Please ensure fault_injection.tar.gz placed in results folder *\033[0m\n"
+  read -p "Press enter to continue"
+
   cd results && tar -xzvf fault_injection.tar.gz && cd ..
   python3 scripts/tail-latency.py
   python3 scripts/validation-latency.py
   python3 scripts/throughput.py
   python3 scripts/detection-rate.py
+
+  mv *.pdf *.png results/img/
 
   echo "All test results generated."
   echo "You can find test outputs in `results/img` folder:"

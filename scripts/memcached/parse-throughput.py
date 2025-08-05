@@ -31,7 +31,7 @@ with open(args.output, "w") as fout:
 
 with open(f"{args.output}.json", "w") as fout:
     json.dump({
-        "vanilla": raw,
-        "orthrus": scee,
-        "rbv": rbv,
+        "vanilla": raw[0],
+        "orthrus": scee[0],
+        "rbv": rbv[0],
     }, fout, ensure_ascii=False, indent=2)

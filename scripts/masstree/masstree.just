@@ -65,6 +65,7 @@ test-masstree-throughput: build test-masstree-prepare
   worker "rbv" \
     "taskset -c 1-5,25-29 ./build/ae/masstree/masstree_rbv {{MASSTREE_DATASET}}" \
     ;
+  just analyze-masstree-throughput
 
 analyze-masstree-throughput:
   #!/usr/bin/env bash

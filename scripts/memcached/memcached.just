@@ -60,6 +60,7 @@ test-memcached-throughput: build test-memcached-prepare
     "taskset -c 1-4 ./build/ae/memcached/memcached_rbv_primary ${PORT} 3 ${PORT1}" \
     "taskset -c 28-47 ./build/ae/memcached/memcached_client localhost ${PORT}" \
     ;
+  just analyze-memcached-throughput
 
 analyze-memcached-throughput:
   #!/usr/bin/env bash

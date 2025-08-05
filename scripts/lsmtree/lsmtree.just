@@ -126,5 +126,5 @@ analyze-lsmtree-latency_vs_pXX:
   do
     python scripts/lsmtree/latency_vs_pXX_parser.py \
       -i temp/run-lsmtree-latency_vs_pXX_${tgt}.log \
-      -o results/lsmtree-latency_vs_pXX_${tgt}.json
+      -o results/lsmtree-latency_vs_pXX-${tgt}.json
   done

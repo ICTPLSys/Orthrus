@@ -22,12 +22,12 @@ def parse_json(file_path):
     return throughput, latency
 
 
-memcached_throughput_scee, memcached_latency_scee = parse_json("memcached-latency_vs_pXX-scee.json")
-memcached_throughput_raw, memcached_latency_raw = parse_json("memcached-latency_vs_pXX-raw.json")
+memcached_throughput_scee, memcached_latency_scee = parse_json("memcached-latency_vs_pXX-orthrus.json")
+memcached_throughput_raw, memcached_latency_raw = parse_json("memcached-latency_vs_pXX-vanilla.json")
 memcached_throughput_rbv, memcached_latency_rbv = parse_json("memcached-latency_vs_pXX-rbv.json")
 
-lsmtree_throughput_scee, lsmtree_latency_scee = parse_json("lsmtree-latency_vs_pXX-scee.json")
-lsmtree_throughput_raw, lsmtree_latency_raw = parse_json("lsmtree-latency_vs_pXX-raw.json")
+lsmtree_throughput_scee, lsmtree_latency_scee = parse_json("lsmtree-latency_vs_pXX-orthrus.json")
+lsmtree_throughput_raw, lsmtree_latency_raw = parse_json("lsmtree-latency_vs_pXX-vanilla.json")
 lsmtree_throughput_rbv, lsmtree_latency_rbv = parse_json("lsmtree-latency_vs_pXX-rbv.json")
 
 data = {

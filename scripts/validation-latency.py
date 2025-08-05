@@ -29,22 +29,22 @@ def empty_cdf():
 data = {
     "Memcached": {
         "RBV": parse_cdf("memcached-validation_latency-rbv.cdf"),
-        "Orthrus": parse_cdf("memcached-validation_latency-scee.cdf"),
+        "Orthrus": parse_cdf("memcached-validation_latency-orthrus.cdf"),
         "xlim": (0.3, 3e3),
     },
     "Masstree": {
         "RBV": parse_cdf("masstree-validation_latency-rbv.cdf"),
-        "Orthrus": parse_cdf("masstree-validation_latency-scee.cdf"),
+        "Orthrus": parse_cdf("masstree-validation_latency-orthrus.cdf"),
         "xlim": (1, 1e4),
     },
     "LSMTree": {
         "RBV": parse_cdf("lsmtree-validation_latency-rbv.cdf"),
-        "Orthrus": parse_cdf("lsmtree-validation_latency-scee.cdf"),
+        "Orthrus": parse_cdf("lsmtree-validation_latency-orthrus.cdf"),
         "xlim": (1, 2e3),
     },
     "Phoenix": {
         "RBV": parse_cdf("phoenix-validation_latency-rbv.cdf"),
-        "Orthrus": parse_cdf("phoenix-validation_latency-scee.cdf"),
+        "Orthrus": parse_cdf("phoenix-validation_latency-orthrus.cdf"),
         "xlim": (1e5, 1.2e6),
     },
 }
