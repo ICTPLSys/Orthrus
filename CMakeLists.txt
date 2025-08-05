@@ -36,6 +36,7 @@ add_subdirectory(./third/mimalloc)
 
 # https://github.com/HdrHistogram/HdrHistogram_c.git
 add_subdirectory(third/HdrHistogram_c)
+include_directories(third/HdrHistogram_c/include)
 # find_package(hdr_histogram REQUIRED)
 
 find_package(Boost REQUIRED COMPONENTS program_options)

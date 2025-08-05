@@ -1,3 +1,5 @@
+set dotenv-load := true
+
 common_flags := "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -G Ninja"
 common_flags_debug := common_flags + " -DCMAKE_BUILD_TYPE=Debug"
 common_flags_release := common_flags + " -DCMAKE_BUILD_TYPE=Release"
@@ -5,6 +7,8 @@ common_flags_release := common_flags + " -DCMAKE_BUILD_TYPE=Release"
 CMAKE := "cmake"
 
 prepare:
+  #!/usr/bin/env bash
+  echo $PROJ
   git fetch --all
   git pull
   git submodule update --init
