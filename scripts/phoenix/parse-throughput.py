@@ -27,6 +27,6 @@ with open(args.output, "w") as f:
             "duration": scee,
         },
         "rbv": {
-            "duration": scee,
+            "duration": rbv,
         },
     }, f, indent=2, ensure_ascii=False)
