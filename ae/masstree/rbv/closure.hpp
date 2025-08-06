@@ -7,7 +7,6 @@ struct Value {
 };
 
 static constexpr int8_t fanout = 29, fanout_highbit = 16;
-// static constexpr int8_t fanout = 7, fanout_highbit = 4;
 static_assert(fanout_highbit * 2 > fanout && fanout_highbit <= fanout);
 static_assert(fanout % 2 == 1);
 

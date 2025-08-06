@@ -27,11 +27,11 @@
 #endif
 
 namespace scee::rbv {
-    thread_local ordered_mutex_t *node_mutex = nullptr;
-    thread_local hasher_t *hasher = nullptr;
-    uint32_t node_count = 0;
-    thread_local bool is_primary = false;
-}
+thread_local ordered_mutex_t *node_mutex = nullptr;
+thread_local hasher_t *hasher = nullptr;
+uint32_t node_count = 0;
+thread_local bool is_primary = false;
+}  // namespace scee::rbv
 
 namespace monitor {
 
@@ -329,8 +329,10 @@ int main(int argc, char *argv[]) {
             uint64_t t_start = rdtsc();
             double t_dur = 0;
             for (uint64_t i = t; i < operation_count; i += n_threads) {
-                while (step_rbv[t].load() + 64 * n_threads < i) std::this_thread::yield();
-                // if (ops[i] < p_insert + p_read + p_update) fprintf(stderr, "thread %d primary op #%lu\n", gettid(), i);
+                while (step_rbv[t].load() + 64 * n_threads < i)
+                    std::this_thread::yield();
+                // if (ops[i] < p_insert + p_read + p_update) fprintf(stderr,
+                // "thread %d primary op #%lu\n", gettid(), i);
                 step[t] = i;
                 scee::rbv::hasher = &hashers_primary[i];
                 t_dur += sampler(rng);

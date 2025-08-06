@@ -525,7 +525,6 @@ const Value *update(ptr_t<Node> *root, uint64_t key, Value val) {
     scee::rbv::hasher->combine(key);
     auto *leaf = locate_locked(root, key);
     scee::rbv::hasher->combine(leaf->node_id);
-
     Node::Data *predict = (Node::Data *)sub_byte_offset(leaf, data_offset);
     auto *data = leaf->get_data()->load();
 
