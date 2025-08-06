@@ -23,7 +23,7 @@ The tests are divided based on the target applications: **Memcached**, **Masstre
 ### Complete Test
 
 In order to get the detection rate result, you need to get the fault injection result first.
-Generating this result takes a long time, so we have provided a copy of the result in advance. Please download it to `result/fault_injection.tar.gz`
+Generating this result takes a long time, so we have provided a copy of the result in advance. Please download it to `datasets/fault_injection.tar.gz`
 from https://1drv.ms/f/c/f66d2e84dd351208/Ekc-nXYZcZlPiK5CrfH7VbwBAqLTHGar_eC6JiwcbajMOg?e=e22l0M
 
 Run the following command:

@@ -66,10 +66,12 @@ generate_all_results:
   source env.sh
   mkdir -p results/img
 
-  echo -e "\n\033[31m* Please ensure fault_injection.tar.gz placed in results folder *\033[0m\n"
-  read -p "Press enter to continue"
+  if [[ ! -f datasets/fault_injection.tar.gz ]]; then
+    echo -e "\n\033[31m* Please ensure fault_injection.tar.gz placed in 'datasets' folder *\033[0m\n"
+    read -p "Press enter to continue"
+  fi
 
-  cd results && tar -xzvf fault_injection.tar.gz && cd ..
+  cd results && tar -xzvf ../datasets/fault_injection.tar.gz && cd ..
   python3 scripts/tail-latency.py
   python3 scripts/validation-latency.py
   python3 scripts/throughput.py
