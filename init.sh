@@ -20,7 +20,7 @@ apt install -y libboost-dev
 
 apt install -y libboost-program-options-dev
 
-apt install -y binutils python3-toolz
+apt install -y binutils python3-toolz python3-matplotlib
 
 apt install -y libboost-dev build-essential
 

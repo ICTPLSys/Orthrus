@@ -78,7 +78,7 @@ generate_all_results:
   mv *.pdf *.png results/img/
 
   echo "All test results generated."
-  echo "You can find test outputs in `results/img` folder:"
+  echo "You can find test outputs in 'results/img' folder:"
   echo "Fig.6:  throughput.{pdf|png}"
   echo "Fig.7:  tail-latency.{pdf|png}"
   echo "Fig.8:  validation-cdf.{pdf|png}"
