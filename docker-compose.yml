@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  # common parts
+  common: &common-config
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - .:/work
+    working_dir: /work
+    privileged: true
+
+  # ============================
+
+  # docker-compose run test-all
+  test-all:
+    <<: *common-config
+    command: just test-all
+
+  interactive:
+    <<: *common-config
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+  # `just` command wraper
+  # docker-compose run just test-all
+  just:
+    <<: *common-config
+    entrypoint: ["just"]
+
