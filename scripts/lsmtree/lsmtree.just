@@ -1,6 +1,7 @@
 [private]
 test-lsmtree-warning:
   #!/usr/bin/env bash
+  source env.sh
   mkdir -p temp
   if [[ ! -f temp/.lsmtree-warning ]]; then
     echo -e "======== Warning lsmtree ========"
@@ -12,6 +13,7 @@ test-lsmtree-warning:
 [private]
 test-lsmtree-prepare: test-lsmtree-warning
   #!/usr/bin/env bash
+  source env.sh
   echo -e "======== Preparing lsmtree ========"
   mkdir -p results temp
 
@@ -23,6 +25,7 @@ test-lsmtree:
 
 test-lsmtree-throughput throughput="50000000": build test-lsmtree-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e "\n======== test-lsmtree-throughput ========"
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -45,12 +48,14 @@ test-lsmtree-throughput throughput="50000000": build test-lsmtree-prepare
 
 analyze-lsmtree-throughput:
   #!/usr/bin/env bash
-  python scripts/lsmtree/parse-throughput.py \
+  source env.sh
+  python3 scripts/lsmtree/parse-throughput.py \
     --input results/lsmtree-throughput-report.txt \
     --output results/lsmtree-throughput-report.txt.json
 
 test-lsmtree-memory throughput="50000000": build test-lsmtree-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e "\n======== test-lsmtree-memory ========"
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -69,6 +74,7 @@ test-lsmtree-memory throughput="50000000": build test-lsmtree-prepare
 
 analyze-lsmtree-memory:
   #!/usr/bin/env bash
+  source env.sh
   set -e
   {
     echo -e "\n======== LSMTree Memory Status ========"
@@ -80,6 +86,7 @@ analyze-lsmtree-memory:
 
 test-lsmtree-validation_latency_cdf throughput="50000000": build test-lsmtree-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e "\n======== test-lsmtree-validation_latency_cdf ========"
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -96,6 +103,7 @@ test-lsmtree-validation_latency_cdf throughput="50000000": build test-lsmtree-pr
 
 test-lsmtree-latency_vs_pXX: build test-lsmtree-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e "\n======== test-lsmtree-latency_vs_pXX ========"
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -122,9 +130,10 @@ test-lsmtree-latency_vs_pXX: build test-lsmtree-prepare
 
 analyze-lsmtree-latency_vs_pXX:
   #!/usr/bin/env bash
+  source env.sh
   for tgt in vanilla orthrus rbv
   do
-    python scripts/lsmtree/latency_vs_pXX_parser.py \
+    python3 scripts/lsmtree/latency_vs_pXX_parser.py \
       -i temp/run-lsmtree-latency_vs_pXX_${tgt}.log \
       -o results/lsmtree-latency_vs_pXX-${tgt}.json
   done

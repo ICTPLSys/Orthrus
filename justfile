@@ -8,18 +8,25 @@ CMAKE := "cmake"
 
 prepare:
   #!/usr/bin/env bash
+  source env.sh
   echo $PROJ
   git fetch --all
   git pull
   git submodule update --init
 
 config: prepare
+  #!/usr/bin/env bash
+  source env.sh
   {{CMAKE}} -B build -S . {{common_flags_release}} -DENABLE_LSMTREE=ON
 
 config-debug: prepare
+  #!/usr/bin/env bash
+  source env.sh
   {{CMAKE}} -B build -S . {{common_flags_debug}} -DENABLE_LSMTREE=ON
 
 build:
+  #!/usr/bin/env bash
+  source env.sh
   {{CMAKE}} --build build -j
 
 import "scripts/memcached/memcached.just"
@@ -30,6 +37,7 @@ import "scripts/lsmtree/lsmtree.just"
 
 test-all: config build
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e "======== Warning: Run All Tests ========"
   read -p "Press enter to clear previous test results (if exists)"
@@ -55,6 +63,7 @@ test-all: config build
 
 generate_all_results:
   #!/usr/bin/env bash
+  source env.sh
   mkdir -p results/img
 
   echo -e "\n\033[31m* Please ensure fault_injection.tar.gz placed in results folder *\033[0m\n"

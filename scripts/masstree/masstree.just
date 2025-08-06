@@ -3,6 +3,7 @@ MASSTREE_DATASET := "datasets/lognormal-190M.bin"
 [private]
 test-masstree-warning:
   #!/usr/bin/env bash
+  source env.sh
   mkdir -p temp
   if [[ ! -f temp/.masstree-warning ]]; then
     echo -e "======== Warning masstree ========"
@@ -14,6 +15,7 @@ test-masstree-warning:
 [private]
 test-masstree-prepare: test-masstree-warning
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e "======== Preparing masstree ========"
   mkdir -p datasets results temp
@@ -37,6 +39,7 @@ test-masstree: build test-masstree-prepare
 
 test-masstree-throughput: build test-masstree-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e '\n======== test-masstree-throughput ========'
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -69,7 +72,8 @@ test-masstree-throughput: build test-masstree-prepare
 
 analyze-masstree-throughput:
   #!/usr/bin/env bash
-  python scripts/masstree/parse-throughput.py \
+  source env.sh
+  python3 scripts/masstree/parse-throughput.py \
     --input-raw temp/masstree-throughput-client-vanilla.log \
     --input-scee temp/masstree-throughput-client-orthrus.log \
     --input-rbv temp/masstree-throughput-client-rbv.log \
@@ -77,6 +81,7 @@ analyze-masstree-throughput:
 
 test-masstree-memory: build test-masstree-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e '\n======== test-masstree-memory ========'
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -106,10 +111,11 @@ test-masstree-memory: build test-masstree-prepare
 
 analyze-masstree-memory:
   #!/usr/bin/env bash
+  source env.sh
   set -e
   {
     echo -e "\n=== Memory Stats ===";
-    python scripts/memory.py  \
+    python3 scripts/memory.py  \
       --input-raw temp/masstree-memory_status-vanilla.log \
       --input-scee temp/masstree-memory_status-orthrus.log \
       --input-rbv temp/masstree-memory_status-rbv.log
@@ -117,6 +123,7 @@ analyze-masstree-memory:
 
 test-masstree-validation_latency_cdf: build test-masstree-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e '\n=== test-masstree-validation_latency_cdf ==='
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM

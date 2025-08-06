@@ -1,6 +1,7 @@
 [private]
 test-memcached-warning:
   #!/usr/bin/env bash
+  source env.sh
   mkdir -p temp
   if [[ ! -f temp/.memcached-warning ]]; then
     echo -e "======== Warning memcached ========"
@@ -12,6 +13,7 @@ test-memcached-warning:
 [private]
 test-memcached-prepare: test-memcached-warning
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e "======== Preparing memcached ========"
   mkdir -p datasets results temp
@@ -24,6 +26,7 @@ test-memcached: build test-memcached-prepare
 
 test-memcached-throughput: build test-memcached-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e '\n======== test-memcached-throughput ========'
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -64,7 +67,8 @@ test-memcached-throughput: build test-memcached-prepare
 
 analyze-memcached-throughput:
   #!/usr/bin/env bash
-  python scripts/memcached/parse-throughput.py \
+  source env.sh
+  python3 scripts/memcached/parse-throughput.py \
     --input-raw temp/memcached-throughput-client-vanilla.log \
     --input-scee temp/memcached-throughput-client-orthrus.log \
     --input-rbv temp/memcached-throughput-client-rbv.log \
@@ -72,6 +76,7 @@ analyze-memcached-throughput:
 
 test-memcached-memory: build test-memcached-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e '\n======== test-memcached-memory ========'
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -109,10 +114,11 @@ test-memcached-memory: build test-memcached-prepare
 
 analyze-memcached-memory:
   #!/usr/bin/env bash
+  source env.sh
   set -e
   {
     echo -e "\n=== Memory Stats ===";
-    python scripts/memory.py  \
+    python3 scripts/memory.py  \
       --input-raw temp/memcached-memory_status-vanilla.log \
       --input-scee temp/memcached-memory_status-orthrus.log \
       --input-rbv temp/memcached-memory_status-rbv-primary.log \
@@ -121,6 +127,7 @@ analyze-memcached-memory:
 
 test-memcached-latency_vs_pXX: build test-memcached-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e "\n======== test-memcached-latency_pXX_all ========"
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -180,15 +187,17 @@ test-memcached-latency_vs_pXX: build test-memcached-prepare
 
 analyze-memcached-latency_vs_pXX:
   #!/usr/bin/env bash
+  source env.sh
   for tgt in vanilla orthrus rbv
   do
-    python scripts/memcached/parse-latency_vs_pXX.py \
+    python3 scripts/memcached/parse-latency_vs_pXX.py \
       -i temp/run-memcached-latency_vs_pXX-${tgt}.log \
       -o results/memcached-latency_vs_pXX-${tgt}.json
   done
 
 test-memcached-validation_latency_cdf: build test-memcached-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e '\n=== test-memcached-validation_latency_cdf ==='
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM

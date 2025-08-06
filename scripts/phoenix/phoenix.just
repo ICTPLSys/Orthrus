@@ -3,6 +3,7 @@ PHOENIX_DATASET := "datasets/news.2024.en.shuffled.deduped"
 [private]
 test-phoenix-warning:
   #!/usr/bin/env bash
+  source env.sh
   mkdir -p temp
   if [[ ! -f temp/.phoenix-warning ]]; then
     echo -e "======== Warning phoenix ========"
@@ -14,6 +15,7 @@ test-phoenix-warning:
 [private]
 test-phoenix-prepare: test-phoenix-warning
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e "======== Preparing phoenix ========"
   mkdir -p datasets results temp
@@ -37,6 +39,7 @@ test-phoenix: build test-phoenix-prepare
 
 test-phoenix-throughput: build test-phoenix-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e '\n======== test-phoenix-throughput ========'
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -72,12 +75,14 @@ test-phoenix-throughput: build test-phoenix-prepare
 
 analyze-phoenix-throughput:
   #!/usr/bin/env bash
-  python scripts/phoenix/parse-throughput.py \
+  source env.sh
+  python3 scripts/phoenix/parse-throughput.py \
     --input results/phoenix-throughput-report.txt \
     --output results/phoenix-throughput-report.txt.json
 
 test-phoenix-memory: build test-phoenix-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e '\n======== test-phoenix-memory ========'
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
@@ -113,6 +118,7 @@ test-phoenix-memory: build test-phoenix-prepare
 
 analyze-phoenix-memory:
   #!/usr/bin/env bash
+  source env.sh
   set -e
   {
     echo -e "\n=== Memory Stats ===";
@@ -125,6 +131,7 @@ analyze-phoenix-memory:
 
 test-phoenix-validation_latency_cdf: build test-phoenix-prepare
   #!/usr/bin/env bash
+  source env.sh
   set -e
   echo -e '\n=== test-phoenix-validation_latency_cdf ==='
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM

@@ -4,6 +4,8 @@ project(SCEE)
 option(ENABLE_LSMTREE "Build LSMTree" OFF)
 option(ENABLE_FJ "Only Fault Injection (WIP)" OFF)
 
+set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -47,11 +49,11 @@ include_directories(third/isal-crc/include)
 
 add_library(profile profile.cpp)
 target_compile_definitions(profile PRIVATE ENABLE_PROFILE=true)
-target_link_libraries(profile PRIVATE hdr_histogram)
+target_link_libraries(profile PRIVATE hdr_histogram_static)
 
 add_library(profile-disable profile.cpp)
 target_compile_definitions(profile-disable PRIVATE ENABLE_PROFILE=false)
-target_link_libraries(profile-disable PRIVATE hdr_histogram)
+target_link_libraries(profile-disable PRIVATE hdr_histogram_static)
 
 add_library(profile_mem profile-mem.cpp)
 target_compile_definitions(profile_mem PRIVATE ENABLE_PROFILE=true)

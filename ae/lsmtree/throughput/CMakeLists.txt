@@ -5,7 +5,7 @@ function(add_throughput_target NAME LIBLSMTREE)
     target_link_libraries(${TARGET} PRIVATE
         gflags::gflags
         ${LIBLSMTREE}
-        hdr_histogram
+        hdr_histogram_static
         profile_mem
         ${LIBS_profile}
     )
@@ -23,7 +23,7 @@ function(add_validation_latency_cdf_target NAME LIBLSMTREE)
     target_link_libraries(${TARGET} PRIVATE
         gflags::gflags
         ${LIBLSMTREE}
-        hdr_histogram
+        hdr_histogram_static
         profile_mem
         ${LIBS_profile}
     )
@@ -40,7 +40,7 @@ function(add_profile_mem_target NAME LIBLSMTREE)
     target_compile_definitions(${TARGET} PRIVATE ENABLE_PROFILE_MEM=true)
     target_link_libraries(${TARGET} PRIVATE
         gflags::gflags
-        hdr_histogram
+        hdr_histogram_static
         profile_mem
         ${LIBS_profile}
         ${LIBLSMTREE}
@@ -57,6 +57,6 @@ set(TARGET lsmtree_socket_throughput_client)
 add_executable(${TARGET} client.cpp)
 target_link_libraries(${TARGET} PRIVATE
     gflags::gflags
-    hdr_histogram
+    hdr_histogram_static
     ${LIBS_deps}
 )
