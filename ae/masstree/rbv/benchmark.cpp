@@ -26,136 +26,12 @@
 #include "profile-mem.hpp"
 #endif
 
-namespace rbv {
-
-constexpr uint64_t FNV_prime = 1099511628211ULL;
-constexpr uint64_t FNV_offset_basis = 14695981039346656037ULL;
-
-inline uint64_t fnv1a_hash_bytes(const void *data, size_t len) {
-    uint64_t hash = FNV_offset_basis;
-    const unsigned char *bytes = static_cast<const unsigned char *>(data);
-
-    for (size_t i = 0; i < len; ++i) {
-        hash ^= bytes[i];
-        hash *= FNV_prime;
-    }
-    return hash;
+namespace scee::rbv {
+    thread_local ordered_mutex_t *node_mutex = nullptr;
+    thread_local hasher_t *hasher = nullptr;
+    uint32_t node_count = 0;
+    thread_local bool is_primary = false;
 }
-
-constexpr int GRANULARITY = 16;
-
-struct info_t {
-    uint64_t hashv;
-    uint64_t timestamp;
-};
-
-struct hasher_t {
-    std::vector<info_t> info;
-    uint64_t latest, reference;
-    size_t cursor;
-    hasher_t() { latest = reference = 0, cursor = 0; }
-    std::string serialize() {
-        std::stringstream ss;
-        ss << info.size() << " " << latest << " ";
-        for (auto &i : info) {
-            ss << i.hashv << " " << i.timestamp << " ";
-        }
-        return ss.str();
-    }
-    void deserialize(const std::string &s) {
-        std::stringstream ss(s);
-        size_t info_size;
-        ss >> info_size >> reference;
-        info.resize(info_size);
-        for (size_t i = 0; i < info_size; i++) {
-            ss >> info[i].hashv >> info[i].timestamp;
-        }
-        latest = cursor = 0;
-    }
-    void combine_(uint64_t hashv) {
-        latest ^= hashv + 0x9e3779b9 + (latest << 6) + (latest >> 2);
-    }
-    void combine(uint64_t x) { combine_(fnv1a_hash_bytes(&x, sizeof(x))); }
-    void combine(const std::string &s) {
-        combine_(fnv1a_hash_bytes(s.data(), s.length()));
-    }
-    void combine(std::string_view sv) {
-        combine_(fnv1a_hash_bytes(sv.data(), sv.length()));
-    }
-    virtual void checkorder(std::atomic_uint64_t &order);
-    virtual std::string finalize();
-    virtual bool is_primary();
-    void reset() { info.clear(), reference = latest = 0, cursor = 0; }
-};
-
-struct hasher_replica_t : hasher_t {
-    void checkorder(std::atomic_uint64_t &order) {
-        assert(cursor < info.size());
-        uint64_t timenow = order.load();
-        while (timenow != info[cursor].timestamp) {
-            assert(timenow <= info[cursor].timestamp);
-            order.wait(timenow);
-            timenow = order.load();
-        }
-        assert(info[cursor].hashv == latest);
-        latest = 0, order++, cursor++;
-        order.notify_all();
-    }
-    std::string finalize() {
-        assert(latest == reference);
-        info.clear(), reference = latest = 0, cursor = 0;
-        return "";
-    }
-    bool is_primary() { return false; }
-};
-
-struct hasher_primary_t : hasher_t {
-    void checkorder(std::atomic_uint64_t &order) {
-        uint64_t timestamp = order++;
-        info.emplace_back(latest, timestamp);
-        latest = 0;
-    }
-    std::string finalize() {
-        std::string s = serialize();
-        info.clear(), reference = latest = 0, cursor = 0;
-        return s;
-    }
-    bool is_primary() { return true; }
-};
-
-struct ordered_mutex_t {
-    pthread_mutex_t mtx;
-    std::atomic_uint64_t order;
-    void lock(hasher_t *hasher) {
-        if (hasher->is_primary()) {
-            pthread_mutex_lock(&mtx);
-            hasher->checkorder(order);
-        } else {
-            hasher->checkorder(order);
-            pthread_mutex_lock(&mtx);
-        }
-    }
-    void unlock(hasher_t *hasher) {
-        if (hasher->is_primary()) {
-            hasher->checkorder(order);
-            pthread_mutex_unlock(&mtx);
-        } else {
-            pthread_mutex_unlock(&mtx);
-            hasher->checkorder(order);
-        }
-    }
-};
-
-struct lock_guard_t {
-    ordered_mutex_t *mtx;
-    hasher_t *hasher;
-    lock_guard_t(ordered_mutex_t *mtx, hasher_t *hasher)
-        : mtx(mtx), hasher(hasher) {
-        mtx->lock(hasher);
-    }
-    ~lock_guard_t() { mtx->unlock(hasher); }
-};
-}  // namespace rbv
 
 namespace monitor {
 
@@ -384,7 +260,16 @@ int main(int argc, char *argv[]) {
     uint64_t sizes = keys.size();
     fprintf(stderr, "load completed, %zu K-V pairs\n", sizes - 1);
 
+    uint64_t n_nodes = record_count / ((fanout + 1) / 2) * 2 + 10;
+    scee::rbv::is_primary = true;
+    scee::rbv::node_count = 0;
+    std::vector<scee::rbv::ordered_mutex_t> primary_mutexes(n_nodes);
+    scee::rbv::node_mutex = primary_mutexes.data();
     scee::ptr_t<Node> *root = build_tree_from_keys(keys, vals);
+    scee::rbv::is_primary = false;
+    scee::rbv::node_count = 0;
+    std::vector<scee::rbv::ordered_mutex_t> replica_mutexes(n_nodes);
+    scee::rbv::node_mutex = replica_mutexes.data();
     scee::ptr_t<Node> *root_rbv = build_tree_from_keys(keys, vals);
 
     fprintf(stderr, "tree built recursively\n");
@@ -429,10 +314,14 @@ int main(int argc, char *argv[]) {
     std::vector<std::thread> threads;
     std::vector<std::thread> RBV_threads;
     std::vector<std::atomic_uint64_t> step(n_threads);
-    std::vector<std::atomic_uint64_t> sstep(n_threads);
+    std::vector<std::atomic_uint64_t> step_rbv(n_threads);
     std::vector<long long> start_us(operation_count);
+    std::vector<scee::rbv::hasher_t> hashers_primary(operation_count);
+    std::vector<scee::rbv::hasher_t> hashers_replica(operation_count);
     for (uint64_t t = 0; t < n_threads; ++t) {
         threads.emplace_back([&, t, root, rps, operation_count, n_threads]() {
+            scee::rbv::is_primary = true;
+            scee::rbv::node_mutex = primary_mutexes.data();
             std::exponential_distribution<double> sampler(rps / n_threads /
                                                           1e9);
             std::mt19937 rng(1235467 + t);
@@ -440,8 +329,10 @@ int main(int argc, char *argv[]) {
             uint64_t t_start = rdtsc();
             double t_dur = 0;
             for (uint64_t i = t; i < operation_count; i += n_threads) {
-                while (sstep[t].load() + n_threads * 16 < i)
-                    std::this_thread::yield();
+                while (step_rbv[t].load() + 64 * n_threads < i) std::this_thread::yield();
+                // if (ops[i] < p_insert + p_read + p_update) fprintf(stderr, "thread %d primary op #%lu\n", gettid(), i);
+                step[t] = i;
+                scee::rbv::hasher = &hashers_primary[i];
                 t_dur += sampler(rng);
                 uint64_t p = rdtsc(), t_offset = 0;
                 uint64_t t_now = nanosecond(t_start, p);
@@ -469,20 +360,19 @@ int main(int argc, char *argv[]) {
                 }
                 eva.cnts[t].c++;
                 eva.latency[i] = nanosecond(p, rdtsc()) + t_offset;
-                step[t] = i;
             }
+            step[t] = operation_count;
             finished += 1;
         });
-        RBV_threads.emplace_back([&, t, root_rbv, rps, operation_count,
+        RBV_threads.emplace_back([&, t, root_rbv, operation_count,
                                   n_threads]() {
-            std::exponential_distribution<double> sampler(rps / n_threads /
-                                                          1e9);
+            scee::rbv::is_primary = false;
+            scee::rbv::node_mutex = replica_mutexes.data();
             std::mt19937 rng(1235467 + t);
-            const uint64_t BNS = 1e6;
-            uint64_t t_start = rdtsc();
-            double t_dur = 0;
             for (uint64_t i = t; i < operation_count; i += n_threads) {
-                if (i < step[t].load()) continue;
+                while (step[t].load() <= i) std::this_thread::yield();
+                hashers_replica[i].deserialize(hashers_primary[i].serialize());
+                scee::rbv::hasher = &hashers_replica[i];
                 int op = ops[i];
                 if (op < p_insert) {
                     uint8_t ret = insert(root_rbv, key_out[i], val_out[i]);
@@ -499,18 +389,13 @@ int main(int argc, char *argv[]) {
                         ret !=
                         0x23146789);  // random magic number unlikely to happen
                 }
-                if (rand() % 4) {
-                    std::swap(key_in[i], key_in[rand() % operation_count]);
-                    my_usleep(10);
-                    i -= n_threads;
-                    continue;
-                }  // retry is caused
-                sstep[t] = i;
+                scee::rbv::finalize();
 #ifdef PROFILE
                 profile::record_validation_latency(profile::get_us_abs() -
                                                    start_us[i]);
                 profile::record_validation_cpu_time(0, 1);
 #endif
+                step_rbv[t] = i;
             }
             finished += 1;
         });

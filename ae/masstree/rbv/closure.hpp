@@ -1,6 +1,6 @@
 constexpr size_t VAL_LEN = 16;
 
-enum NodeType : uint64_t { LEAF, INTERIOR, ROOT };
+enum NodeType : uint32_t { LEAF, INTERIOR, ROOT };
 
 struct Value {
     char ch[VAL_LEN];
@@ -30,6 +30,7 @@ struct Node {
         scee::ptr_t<Value> *value(int8_t idx) const;
     };
     scee::NodeType node_type;
+    uint32_t node_id;
     OCCControl *get_occ() const;
     scee::ptr_t<Node> *get_parent() const;
     scee::ptr_t<Data> *get_data() const;

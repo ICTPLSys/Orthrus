@@ -217,6 +217,7 @@ const LeafNode *create_leaf_node(uint64_t occ_v, const Node::Data *data,
     store_ptr(&header->parent, nullptr);
     store_ptr(&header->data, data);
     shadow->node_type = NodeType::LEAF;
+    shadow->node_id = ++scee::rbv::node_count;
     store_ptr(&extra->prev, nullptr);
     store_ptr(&extra->next, next);
 
@@ -255,6 +256,7 @@ const LeafNode *create_leaf_node_data_nearby(uint64_t occ_v,
     store_ptr(&header->parent, nullptr);
     store_ptr(&header->data, data_addr);
     shadow->node_type = NodeType::LEAF;
+    shadow->node_id = ++scee::rbv::node_count;
     store_ptr(&extra->prev, nullptr);
     store_ptr(&extra->next, next);
 
@@ -278,6 +280,7 @@ const Node *create_interior_node(uint64_t occ_v, const Node::Data *data,
     store_ptr(&header->parent, nullptr);
     store_ptr(&header->data, data);
     shadow->node_type = node_type;
+    shadow->node_id = ++scee::rbv::node_count;
 
     shadow_commit(shadow, addr);
     shadow_destroy(shadow);
@@ -308,6 +311,7 @@ const Node *create_interior_node_data_nearby(uint64_t occ_v,
     store_ptr(&header->parent, nullptr);
     store_ptr(&header->data, data_addr);
     shadow->node_type = node_type;
+    shadow->node_id = ++scee::rbv::node_count;
 
     shadow_commit(shadow, addr);
     shadow_destroy(shadow);
@@ -462,10 +466,14 @@ uint64_t scan_and_sum(ptr_t<Node> *root, uint64_t key, uint64_t num_keys) {
     int8_t idx = data->locate(key);
     const Value *last = nullptr;
 
+    scee::rbv::node_mutex[leaf->node_id].lock();
+
     if (data->keys[idx] < key) ++idx;
     while (scnt < num_keys) {
         if (idx == data->num_keys) {
+            scee::rbv::node_mutex[leaf->node_id].unlock();
             leaf = leaf->get_next()->load();
+            scee::rbv::node_mutex[leaf->node_id].lock();
             if (leaf == nullptr) break;
             data = leaf->get_data()->load();
             idx = 0;
@@ -489,31 +497,37 @@ uint64_t scan_and_sum(ptr_t<Node> *root, uint64_t key, uint64_t num_keys) {
         ++idx, ++scnt;
     }
 
+    scee::rbv::node_mutex[leaf->node_id].unlock();
+
     return ssum;
 }
 
 const LeafNode *locate_locked(ptr_t<Node> *root, uint64_t key) {
     void *cursor = fetch_cursor();
+    scee::rbv::checkorder(scee::rbv::node_mutex[root->load()->node_id].order);
     while (true) {
         auto [leaf, v_stable] = reach_leaf(root, key);
         if (likely(!(v_stable & OCCControl::DELETED))) {
+            scee::rbv::node_mutex[leaf->node_id].lock();
             leaf->get_occ()->lock();
             uint64_t v_stable_next = leaf->get_occ()->stable_version();
             if ((v_stable_next ^ v_stable) <= OCCControl::LOCK) {
                 return leaf;
             }
             leaf->get_occ()->unlock();
+            scee::rbv::node_mutex[leaf->node_id].unlock();
         }
         rollback_cursor(cursor);
     }
 }
 
 const Value *update(ptr_t<Node> *root, uint64_t key, Value val) {
+    scee::rbv::hasher->combine(key);
     auto *leaf = locate_locked(root, key);
+    scee::rbv::hasher->combine(leaf->node_id);
 
     Node::Data *predict = (Node::Data *)sub_byte_offset(leaf, data_offset);
     auto *data = leaf->get_data()->load();
-    ;
 
     int8_t idx = data->locate(key);
     const Value *old_val = nullptr;
@@ -525,6 +539,7 @@ const Value *update(ptr_t<Node> *root, uint64_t key, Value val) {
     }
 
     leaf->get_occ()->unlock();
+    scee::rbv::node_mutex[leaf->node_id].unlock();
 
     return old_val;
 }
