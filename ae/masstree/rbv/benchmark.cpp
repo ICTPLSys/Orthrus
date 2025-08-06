@@ -403,14 +403,14 @@ int main(int argc, char *argv[]) {
         });
     }
     threads.emplace_back([n_threads, &finished, &eva]() {
-        while (finished.load(std::memory_order_relaxed) < n_threads) {
+        while (finished.load(std::memory_order_relaxed) < n_threads * 2) {
             if (!finished.load(std::memory_order_relaxed)) eva.report();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
     });
     for (auto &t : threads) t.join();
     for (auto &t : RBV_threads) t.join();
-    threads.clear();
+    threads.clear(); RBV_threads.clear();
 
 #ifdef PROFILE_MEM
     profile::mem::stop();

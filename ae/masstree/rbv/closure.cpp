@@ -473,8 +473,8 @@ uint64_t scan_and_sum(ptr_t<Node> *root, uint64_t key, uint64_t num_keys) {
         if (idx == data->num_keys) {
             scee::rbv::node_mutex[leaf->node_id].unlock();
             leaf = leaf->get_next()->load();
-            scee::rbv::node_mutex[leaf->node_id].lock();
             if (leaf == nullptr) break;
+            scee::rbv::node_mutex[leaf->node_id].lock();
             data = leaf->get_data()->load();
             idx = 0;
         }
@@ -497,7 +497,7 @@ uint64_t scan_and_sum(ptr_t<Node> *root, uint64_t key, uint64_t num_keys) {
         ++idx, ++scnt;
     }
 
-    scee::rbv::node_mutex[leaf->node_id].unlock();
+    if (leaf != nullptr) scee::rbv::node_mutex[leaf->node_id].unlock();
 
     return ssum;
 }
