@@ -17,6 +17,6 @@ set(TARGET lsmtree_socket_latency_pXX_client)
 add_executable(${TARGET} client.cpp)
 target_link_libraries(${TARGET} PRIVATE
     gflags::gflags
-    hdr_histogram
+    hdr_histogram_static
     ${LIBS_deps}
 )
