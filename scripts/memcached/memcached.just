@@ -131,7 +131,7 @@ test-memcached-latency_vs_pXX: build test-memcached-prepare
   set -e
   echo -e "\n======== test-memcached-latency_pXX_all ========"
   trap 'echo -e "\n\nKilling all background jobs..."; pkill -9 -P $$ &>/dev/null; exit 130' SIGINT SIGTERM
-  THROUGHPUT="30000 40000 50000 60000 70000 80000 90000 100000 110000";
+  THROUGHPUT="30000 40000 50000 60000 70000 80000 90000 100000 110000 120000";
   {
     NAME="vanilla";
     echo "${NAME} running"

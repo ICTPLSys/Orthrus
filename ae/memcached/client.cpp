@@ -7,6 +7,7 @@
 #include <atomic>
 #include <cassert>
 #include <chrono>
+#include <iostream>
 #include <cstring>
 #include <mutex>
 #include <random>
@@ -305,13 +306,31 @@ void run_set() {
             kNumThreads);
     std::vector<std::thread> threads;
     monitor::evaluation monitor(logger, kNumKVPairs, kNumThreads, task);
+    // upper bound speed = 100K per thread
+    uint64_t rps_per_thread = 100000;
+    if constexpr (ret_type != kCreated) {
+        if (rps > 0) rps_per_thread = rps * ngroups / kNumThreads;
+    }
     for (uint32_t i = 0; i < kNumThreads; ++i) {
-        threads.emplace_back([i, &monitor]() {
+        threads.emplace_back([i, &monitor, rps_per_thread]() {
+            constexpr uint64_t BNS = 1e6;
+            std::exponential_distribution<double> sampler(rps_per_thread / 1e9);
+            std::mt19937 rng(1235467 + i);
+            uint64_t t_start = rdtsc();
+            double t_dur = 0;
             int fd = connect_server(i % ngroups);
             assert(fd >= 0);
             std::vector<char> tx_buf(kBufferSize);
             std::vector<char> rx_buf(kBufferSize);
             for (uint32_t k = i; k < kNumKVPairs; k += kNumThreads) {
+                t_dur += sampler(rng);
+                uint64_t p = rdtsc(), t_offset = 0;
+                uint64_t t_now = nanosecond(t_start, p);
+                if (t_now + BNS < t_dur) {
+                    my_nsleep(t_dur - t_now - (BNS / 2));
+                } else if (t_dur + BNS < t_now) {
+                    t_offset = t_now - t_dur - (BNS / 2);
+                }
                 auto &key = all_keys[k];
                 auto &val = all_vals[k];
                 random_string(val.data, VAL_LEN, rngs[i].get());
@@ -320,7 +339,7 @@ void run_set() {
                 uint64_t timestamp = rdtsc();
                 write_all(fd, tx_buf.data(), len);
                 size_t rx_len = read(fd, rx_buf.data(), kBufferSize);
-                monitor.latency[k] = rdtsc() - timestamp;
+                monitor.latency[k] = nanosecond(p, rdtsc()) + t_offset;
 
                 assert(rx_len > 0);
                 if (strncmp(rx_buf.data(), kRetVals[ret_type],
@@ -353,23 +372,37 @@ void run_get() {
     std::vector<std::thread> threads;
     monitor::evaluation monitor(logger, kNumOpsPerThread * kNumThreads,
                                 kNumThreads, "GET");
+    uint64_t rps_per_thread = 100000;
+    if (rps > 0) rps_per_thread = rps * ngroups / kNumThreads;
     for (uint32_t i = 0; i < kNumThreads; ++i) {
-        threads.emplace_back([i, &monitor]() {
+        threads.emplace_back([i, &monitor, rps_per_thread]() {
+            constexpr uint64_t BNS = 1e6;
+            std::exponential_distribution<double> sampler(rps_per_thread / 1e9);
+            std::mt19937 rng(1235467 + i);
+            uint64_t t_start = rdtsc();
+            double t_dur = 0;
             int fd = connect_server(i % ngroups);
             assert(fd >= 0);
             Value val;
             std::vector<char> tx_buf(kBufferSize);
             std::vector<char> rx_buf(kBufferSize);
             for (uint32_t k = 0; k < kNumOpsPerThread; ++k) {
+                t_dur += sampler(rng);
+                uint64_t p = rdtsc(), t_offset = 0;
+                uint64_t t_now = nanosecond(t_start, p);
+                if (t_now + BNS < t_dur) {
+                    my_nsleep(t_dur - t_now - (BNS / 2));
+                } else if (t_dur + BNS < t_now) {
+                    t_offset = t_now - t_dur - (BNS / 2);
+                }
                 auto &key = all_keys[zipf_key_indices[k * kNumThreads + i]];
                 auto &val = all_vals[zipf_key_indices[k * kNumThreads + i]];
                 char buf[VAL_LEN];
                 size_t val_len;
                 size_t len = prepare_getcmd(tx_buf.data(), key.data);
-                uint64_t timestamp = rdtsc();
                 write_all(fd, tx_buf.data(), len);
                 size_t rx_len = read(fd, rx_buf.data(), kBufferSize);
-                monitor.latency[k * kNumThreads + i] = rdtsc() - timestamp;
+                monitor.latency[k * kNumThreads + i] = nanosecond(p, rdtsc()) + t_offset;
                 assert(rx_len > 0);
                 int r =
                     parse_getret(rx_buf.data(), rx_len, buf, VAL_LEN, &val_len);
