@@ -223,7 +223,7 @@ test-memcached-validation_latency_cdf: build test-memcached-prepare
   PORT=$(shuf -i 20000-30000 -n 1); echo "Alloc New Port: ${PORT}";
   PORT1=$(shuf -i 20000-30000 -n 1); echo "Alloc New Port: ${PORT}";
   worker "rbv" \
-    "taskset -c 1-16 ./build/ae/memcached/memcached_rbv_replica_profile ${PORT1}" \
-    "taskset -c 25-40 ./build/ae/memcached/memcached_rbv_primary ${PORT} 3 ${PORT1}" \
+    "taskset -c 24-27 ./build/ae/memcached/memcached_rbv_replica_profile ${PORT1}" \
+    "taskset -c 1-4 ./build/ae/memcached/memcached_rbv_primary ${PORT} 3 ${PORT1}" \
     "taskset -c 28-47 ./build/ae/memcached/memcached_client localhost ${PORT}" \
     ;

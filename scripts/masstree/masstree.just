@@ -141,8 +141,8 @@ test-masstree-validation_latency_cdf: build test-masstree-prepare
     } 2>&1 | tee temp/run-masstree-validation_latency_cdf-${NAME}.log
   }
   worker "orthrus" \
-    "taskset -c 1-4 ./build/ae/masstree/masstree_orthrus_profile {{MASSTREE_DATASET}}" \
+    "taskset -c 1-10 ./build/ae/masstree/masstree_orthrus_profile {{MASSTREE_DATASET}}" \
     ;
   worker "rbv" \
-    "taskset -c 1-4 ./build/ae/masstree/masstree_rbv_profile {{MASSTREE_DATASET}}" \
+    "taskset -c 1-5,25-29 ./build/ae/masstree/masstree_rbv_profile {{MASSTREE_DATASET}}" \
     ;
