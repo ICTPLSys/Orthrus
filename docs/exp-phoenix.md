@@ -1,13 +1,10 @@
 ## Individual Experiment: Phoenix
 
-
-
-
 ### Throughput (Figure 6)
 
 **Commands:**  `just test-phoenix-throughtput`
 
-**Execution Time:** `2m43s`
+**Execution Time:** ~3 min
 
 **Test Results:** `results/phoenix-throughtput-report.txt[.json]`
 
@@ -17,12 +14,10 @@
 vanilla running
     Time taken: 28757 ms
 orthrus running
-    Time taken: 28783 ms
+    Time taken: 29177 ms
 rbv running
-    Time taken: 36576 ms
+    Time taken: 46747 ms
 ```
-
-
 
 --------------
 
@@ -30,21 +25,19 @@ rbv running
 
 **Commands:**  `just test-phoenix-validation_latency_cdf`
 
-**Execution Time:** `19m51s`
+**Execution Time:** ~3 min
 
 **Test Results:** `results/phoenix-validation_latency-{vanilla|orthrus|rbv}.cdf`
 
 **Example:** N/A
 
-
-
 --------------
 
-## Memory (in paper)
+## Memory (Discussed in paper)
 
 **Commands:**  `just test-phoenix-memory`
 
-**Execution Time:** `4m36s`
+**Execution Time:** ~5 min
 
 **Test Results:** `results/phoenix-memory_status-report.txt`
 
@@ -53,18 +46,17 @@ rbv running
 ```
 === Memory Stats ===
 Processing raw
-max mem run :  43030392
+max mem run :  42994864
 Processing scee
-max mem run :  44782004
+max mem run :  44591108
 Processing rbv
-max mem run :  42970432
-max mem run :  43026256
+max mem run :  43050520
+max mem run :  43078260
 ----------  results(peak)  ----------
-ratio (scee vs raw):  1.0407063918915729  # aka, 4%
-ratio (rbv vs raw):   1.9985104481502283  # aka, 100%
+ratio (Orthrus vs Vanilla):  1.037126387933219
+ratio (RBV vs Vanilla):      2.0032341537351996
 ----------  results(avg)  ----------
-ratio (scee vs raw):  1.0533045108399122
-ratio (rbv vs raw):   1.9886216904041945
-
+ratio (Orthrus vs Vanilla):  1.0127006153037241
+ratio (RBV vs Vanilla):      1.9334951922224275
 ```
 

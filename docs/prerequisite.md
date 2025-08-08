@@ -1,19 +1,27 @@
+## Prerequisites
 
-# Prerequisities
+### Environment for Performance Testing
 
-## Enviroment For Performance Test
-We evaluate Orthrus throughly on Ubuntu 20.04. If you also use this release, you can simply run **init.sh under the root directory** to setup environment.
+We've thoroughly evaluated Orthrus on both **Ubuntu 18.04** and **Ubuntu 20.04**. For your convenience, we recommend using **Ubuntu 20.04**.
 
-If you are using a similiar OS release, you can refer to commands in init.sh. Else, you can download related packages yourself.
+If you're using Ubuntu 20.04, you can set up the environment by running `init.sh` from the root directory. After that, run the following command to test the overall performance:
 
-Not that you should use cmake version >= 3.20. In our init.sh, we install cmake 3.29.
-
-```shell
-sudo ./init.sh
+```bash
+just test-all
 ```
 
-## Environment for Fault Injection Evaluation
+Alternatively, you can install **Docker Compose** and run this command. This method doesn't require you to set up the environment manually:
 
-run table2_env.sh.
+```bash
+docker-compose run test-all
+```
 
-It will build and install our modified Clang compiler with fault injection features, and configure an automatic testing platform written in python.
+If you're using a similar OS, you can refer to the commands in `init.sh` or download the necessary packages yourself.
+
+Please note that our testing script requires a minimum of **48 CPU cores** to function correctly. The earliest supported CMake version is **3.20**.
+
+### Environment for Fault Injection Evaluation
+
+To set up the basic environment for fault injection evaluation, simply run `table2_env.sh`.
+
+This script will build and install our modified Clang compiler with fault injection features and configure an automated testing platform written in Python.
