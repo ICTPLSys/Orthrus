@@ -160,7 +160,8 @@ Retcode SkipList::Set(KeyT key, ValueT value) {
 #endif
 
     if (p->key == key) {
-        *p->data = Data(key, value, false);
+        delete p->data;
+        p->data = new Data(key, value, false);
 
 #if (LSMTREE_PROFILE_SKIPLIST_RDTSC)
         now = rdtsc();

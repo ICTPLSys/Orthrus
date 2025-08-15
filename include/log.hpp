@@ -57,7 +57,7 @@
 namespace scee {
 
 constexpr bool CHECK_OVERFLOW_ON_APPEND = false;
-constexpr bool CHECK_OVERFLOW_ON_COMMIT = true;
+constexpr bool CHECK_OVERFLOW_ON_COMMIT = false;
 constexpr size_t MIN_LOG_BUFFER_SIZE = (1 << 15);
 constexpr size_t MAX_LOG_BUFFER_SIZE = MIN_LOG_BUFFER_SIZE * 16;
 
