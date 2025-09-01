@@ -2,7 +2,7 @@
 
 ## Introduction:
 
-Orthrus is a system for the timely detection of silent user-data corruption (SDC) caused by post-installation CPU errors. Orthrus enables high-coverage protection of user-data in the cloud, with minimal performance impact. Please refer to our SOSP paper, `Orthrus: Efficient and Timely Detection of Silent User Data Corruption in the Cloud with Resource-Adaptive Computation Validation`, for more details.
+Orthrus is a system for the timely detection of silent user-data corruption (SDC) caused by post-installation CPU errors. Orthrus enables high-coverage protection of user-data in the cloud, with minimal performance impact. Please refer to our SOSP 2025 paper, `Orthrus: Efficient and Timely Detection of Silent User Data Corruption in the Cloud with Resource-Adaptive Computation Validation`, for more details.
 
 
 ## Instructions
