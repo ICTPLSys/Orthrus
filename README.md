@@ -1,8 +1,13 @@
 # Orthrus: Efficient and Timely Detection of Silent User Data Corruption in the Cloud with Resource-Adaptive Computation Validation
 
+## Introduction:
+
+Orthrus is a system for the timely detection of silent user-data corruption (SDC) caused by post-installation CPU errors. Orthrus enables high-coverage protection of user-data in the cloud, with minimal performance impact. Please refer to our SOSP paper, `Orthrus: Efficient and Timely Detection of Silent User Data Corruption in the Cloud with Resource-Adaptive Computation Validation`, for more details.
+
+
 ## Instructions
 
-This repository contains the research artifact for **Orthrus**, a system designed for efficient and timely detection of silent user data corruption in cloud environments. As mentioned in the paper, we validated Orthrus through two sets of performance experiments: one focusing on its overall performance and validation latency, and another on its error coverage.
+This repository contains the research artifact for evaluating the performance of **Orthrus**. For the automated tesing framework of Fault-Injection (SDC errors Injection using LLVM compilers), Please refer to another repo [FaultInjection](https://github.com/ICTPLSys/Orthrus-FaultInjection).
 
 1. The **complete** performance test takes approximately **7 hours** to run. (Refer to Figures 6-9 in the paper).
 2. **Error Injection Tests** (Refer to Table 2 in the paper):
@@ -48,4 +53,4 @@ For the details of individual tests, please refer to the following documents:
 
 ## Error Coverage Analysis
 
-Please refer to branch [fault injection (fj)](https://github.com/Orthrus-SOSP25/Orthrus-AE/tree/fj) for more information.
+Please refer to the FaultInjection Repo for more details.
