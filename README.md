@@ -7,9 +7,11 @@ Orthrus is a system for the timely detection of silent user-data corruption (SDC
 
 ## Instructions
 
-This repository contains the research artifact for evaluating the performance of **Orthrus**. For the automated tesing framework of Fault-Injection (SDC errors Injection using LLVM compilers), Please refer to another repo [FaultInjection](https://github.com/ICTPLSys/Orthrus-FaultInjection).
+This repository contains the research artifact for evaluating the performance of **Orthrus** Runtime. 
 
-1. The **complete** performance test takes approximately **7 hours** to run. (Refer to Figures 6-9 in the paper).
+For the automated tesing framework of Fault-Injection (SDC errors Injection using LLVM compilers), Please refer to another repo [FaultInjection](https://github.com/ICTPLSys/Orthrus-FaultInjection). **We will continue to work on this Repo, to develop an easy-to-use automated test platform for fault injection.**
+
+1. The **complete** performance evaluation takes approximately **7 hours** to run. (Refer to Figures 6-9 in the paper).
 2. **Error Injection Tests** (Refer to Table 2 in the paper):
       * A **complete** error injection test may take over **30 hours**.
       * We also provide a **partial** error injection test for a fast check, which takes **2-3 hours**. Note that the results in the paper are based on the full test.
